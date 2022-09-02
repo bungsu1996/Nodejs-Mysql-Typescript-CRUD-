@@ -10,9 +10,19 @@ class App {
   public app: Application;
   constructor() {
     this.app = express();
+    this.log();
     this.plugin();
     this.route();
     this.errHandler();
+  };
+  protected log = () => {
+    this.app.use((req, res, next) => {
+      logging.Info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
+      res.on("finish", () => {
+        logging.Info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
+      });
+      next();
+    });
   };
   protected plugin = () => {
     this.app.use(express.json());
@@ -32,13 +42,6 @@ class App {
   };
   protected route = () => {
     this.app.use(userRouter);
-    this.app.use((req, res, next) => {
-      logging.Info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
-      res.on("finish", () => {
-        logging.Info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
-      });
-      next();
-    });
   };
   protected errHandler = () => {
 
